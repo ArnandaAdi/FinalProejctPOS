@@ -31,7 +31,7 @@ const ProductList = () => {
     fetchProducts();
   }, [dispatch, selectedCategory]);
 
-  const handleSortByPrice = async () => {
+  const handleSortByprice = async () => {
     try {
       const response = await fetch(
         "http://localhost:8080/pos/api/listproduct?sort_by=price&sort_order=asc"
@@ -43,7 +43,7 @@ const ProductList = () => {
     }
   };
 
-  const handleSortByName = async () => {
+  const handleSortByname = async () => {
     try {
       const response = await fetch(
         "http://localhost:8080/pos/api/listproduct?sort_by=title&sort_order=asc"
@@ -87,8 +87,8 @@ const ProductList = () => {
         </div>
         <div>
           <SortOptions
-            handleSortByName={handleSortByName}
-            handleSortByPrice={handleSortByPrice}
+            handleSortByName={handleSortByname}
+            handleSortByPrice={handleSortByprice}
           />
         </div>
       </div>

@@ -28,10 +28,10 @@ const DetailProduct = () => {
   }
 
   return (
-    <div className="p-5 font-sans">
-      <h2 className="text-xl font-bold mb-4">Detail Produk</h2>
-      <div className="flex justify-between items-start border border-gray-300 p-5 rounded-lg">
-        <div>
+    <div className="container mx-auto p-5 font-sans">
+      <h2 className="text-2xl font-bold mb-4">Detail Produk</h2>
+      <div className="flex justify-between items-start border border-gray-300 p-5 rounded-lg shadow-md">
+        <div className="w-1/2">
           <p className="mb-2">
             <strong>ID Produk:</strong> {product.id}
           </p>
@@ -51,17 +51,17 @@ const DetailProduct = () => {
             <strong>Nama Kategori:</strong> {product.category_name}
           </p>
         </div>
-        <div>
+        <div className="w-1/2 flex justify-center">
           <img
             src={product.image}
             alt={product.title}
-            className="max-w-xs h-auto"
+            className="max-w-xs h-auto rounded-lg"
           />
         </div>
       </div>
       <button
         onClick={() => navigate(-1)}
-        className="mt-5 px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+        className="mt-5 px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-300"
       >
         KEMBALI
       </button>

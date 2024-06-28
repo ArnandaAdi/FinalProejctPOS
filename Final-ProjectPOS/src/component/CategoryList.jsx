@@ -26,11 +26,13 @@ const CategoryList = ({ selectedCategory, setSelectedCategory }) => {
   }, [categoryStatus, dispatch]);
 
   return (
-    <div className="category-list flex justify-around mt-4">
+    <div className="sticky bottom-0 bg-white z-10 border-t border-b py-4 flex justify-between">
       <button
         onClick={() => setSelectedCategory(0)}
-        className={`py-2 px-4 ${
-          selectedCategory === 0 ? "bg-blue-500 text-white" : "bg-gray-200"
+        className={`py-2 px-4 flex-grow m-1 ${
+          selectedCategory === 0
+            ? "bg-green-500 text-white"
+            : "bg-gray-200 text-black"
         }`}
       >
         Semua
@@ -39,10 +41,10 @@ const CategoryList = ({ selectedCategory, setSelectedCategory }) => {
         <button
           key={category.id}
           onClick={() => setSelectedCategory(category.id)}
-          className={`py-2 px-4 ${
+          className={`py-2 px-4 flex-grow m-1 ${
             selectedCategory === category.id
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+              ? "bg-green-500 text-white"
+              : "bg-gray-200 text-black"
           }`}
         >
           {category.name}

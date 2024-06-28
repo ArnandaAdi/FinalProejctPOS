@@ -3,10 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { resetOrder } from "../features/productSlice";
 import { formatCurrency } from "../utils/FormatCurrency";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Impor useNavigate
 
 const PaymentPage = () => {
   const order = useSelector((state) => state.products.order);
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Gunakan useNavigate untuk navigasi
 
   const [amountPaid, setAmountPaid] = useState("");
   const [change, setChange] = useState(0);
@@ -61,6 +63,7 @@ const PaymentPage = () => {
           setTimeout(() => {
             setErrorMessage("");
           }, 3000);
+          navigate("/");
         } else {
           setErrorMessage("Terjadi kesalahan saat melakukan transaksi.");
         }

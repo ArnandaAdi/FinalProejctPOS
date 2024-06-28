@@ -1,73 +1,66 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { formatCurrency } from "../utils/FormatCurrency";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8080/pos/api/listtransactions"
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
-        } else {
-          console.error("Failed to fetch transactions");
-        }
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-
-    fetchTransactions();
+    axios
+      .get("http://localhost:8080/pos/api/listtransactions")
+      .then((response) => {
+        setTransactions(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the transactions!", error);
+      });
   }, []);
+
+  const handleDetailClick = (transaction) => {
+    navigate(`/transaction-detail/${transaction.id}`, {
+      state: {
+        transactionDate: transaction.transaction_date,
+        totalPay: transaction.total_pay,
+      },
+    });
+  };
 
   return (
     <div className="p-4">
-      <h2 className="text-xl mb-4">Transaction History</h2>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <h1 className="text-2xl font-bold mb-4">Riwayat Transaksi</h1>
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Transaction Date
+            <th className="py-2 px-4 border-b text-center">
+              Tanggal Transaksi
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Transaction ID
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total Price
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Total Paid
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Action
-            </th>
+            <th className="py-2 px-4 border-b text-center">ID Transaksi</th>
+            <th className="py-2 px-4 border-b text-center">Total Harga</th>
+            <th className="py-2 px-4 border-b text-center">Total Bayar</th>
+            <th className="py-2 px-4 border-b text-center">Action</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody>
           {transactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
+            <tr key={transaction.id} className="text-center">
+              <td className="py-2 px-4 border-b">
                 {transaction.transaction_date}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">{transaction.id}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {formatCurrency(transaction.total_amount)}
+              <td className="py-2 px-4 border-b">{transaction.id}</td>
+              <td className="py-2 px-4 border-b">
+                Rp {transaction.total_amount.toLocaleString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                {formatCurrency(transaction.total_pay)}
+              <td className="py-2 px-4 border-b">
+                Rp {transaction.total_pay.toLocaleString()}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Link
-                  to={`/transaction/${transaction.id}`}
-                  className="text-blue-500 hover:underline"
+              <td className="py-2 px-4 border-b">
+                <button
+                  onClick={() => handleDetailClick(transaction)}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded"
                 >
-                  Transaction Detail
-                </Link>
+                  Detail Transaksi
+                </button>
               </td>
             </tr>
           ))}

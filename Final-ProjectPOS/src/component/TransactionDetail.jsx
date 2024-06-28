@@ -1,103 +1,95 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { formatCurrency } from "../utils/FormatCurrency";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 const TransactionDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [transactionDetails, setTransactionDetails] = useState([]);
-  const [transaction, setTransaction] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchTransactionDetail = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/pos/api/listtransaksidetail/${id}`
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setTransaction(data);
-          setTransactionDetails(data.transactionDetails);
+    axios
+      .get(`http://localhost:8080/pos/api/listtransaksidetail/${id}`)
+      .then((response) => {
+        console.log("Response data:", response.data);
+        setTransactionDetails(response.data);
+      })
+      .catch((error) => {
+        if (error.response) {
+          console.error("Error response:", error.response.data);
+        } else if (error.request) {
+          console.error("Error request:", error.request);
         } else {
-          setError("Failed to fetch transaction detail");
+          console.error("Error message:", error.message);
         }
-      } catch (error) {
-        setError(`Error fetching transaction detail: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchTransactionDetail();
-    }
+      });
   }, [id]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!transaction) {
-    return <div>Transaction not found.</div>;
-  }
+  const handleBackClick = () => {
+    navigate("/transaction-history");
+  };
 
   return (
     <div className="p-4">
-      <h2 className="text-xl mb-4">Transaction Detail</h2>
-      <div>
-        <p>
-          <strong>Transaction ID:</strong> {transaction.transaction_id}
-        </p>
-        <p>
-          <strong>Transaction Date:</strong>{" "}
-          {new Date(transaction.transaction_date).toLocaleDateString()}
-        </p>
-        <p>
-          <strong>Total Price:</strong>{" "}
-          {formatCurrency(transaction.total_amount)}
-        </p>
-        <p>
-          <strong>Total Paid:</strong> {formatCurrency(transaction.total_pay)}
-        </p>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-lg mb-2">Product Details:</h3>
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Quantity
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Subtotal
-              </th>
+      <h1 className="text-2xl font-bold mb-4">Detail Transaksi</h1>
+      <button
+        onClick={handleBackClick}
+        className="mb-4 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+      >
+        Kembali
+      </button>
+      {transactionDetails.length > 0 && (
+        <div className="mb-4">
+          <p>
+            <strong>ID Transaksi:</strong>{" "}
+            {transactionDetails[0].transaction_id}
+          </p>
+          <p>
+            <strong>Tanggal Transaksi:</strong> {location.state.transactionDate}
+          </p>
+          <p>
+            <strong>Nama Produk:</strong>{" "}
+            {transactionDetails.map((detail) => detail.product_name).join(", ")}
+          </p>
+          <p>
+            <strong>Total Harga:</strong> Rp{" "}
+            {transactionDetails
+              .reduce((sum, detail) => sum + detail.sub_total, 0)
+              .toLocaleString()}
+          </p>
+          <p>
+            <strong>Total Bayar:</strong> Rp{" "}
+            {location.state.totalPay.toLocaleString()}
+          </p>
+        </div>
+      )}
+      <table className="text-center min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b">ID Produk</th>
+            <th className="py-2 px-4 border-b">Nama Produk</th>
+            <th className="py-2 px-4 border-b">Harga Satuan</th>
+            <th className="py-2 px-4 border-b">Quantity</th>
+            <th className="py-2 px-4 border-b">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactionDetails.map((detail) => (
+            <tr key={detail.product_id}>
+              <td className="py-2 px-4 border-b">{detail.product_id}</td>
+              <td className="py-2 px-4 border-b">{detail.product_name}</td>
+              <td className="py-2 px-4 border-b">
+                Rp {detail.product_price?.toLocaleString()}
+              </td>
+              <td className="py-2 px-4 border-b">{detail.quantity}</td>
+              <td className="py-2 px-4 border-b">
+                Rp {detail.sub_total?.toLocaleString()}
+              </td>
             </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {transactionDetails.map((detail) => (
-              <tr key={detail.product_id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {detail.product_name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {detail.quantity}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {formatCurrency(detail.sub_total)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

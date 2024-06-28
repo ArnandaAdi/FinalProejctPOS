@@ -87,7 +87,9 @@ const ProductAdd = () => {
             required
             className="w-full border border-gray-300 p-2 rounded-lg"
           >
-            <option value="">Select a category</option>
+            <option value="" disabled>
+              Select a category
+            </option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
